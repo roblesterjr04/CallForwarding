@@ -1,0 +1,41 @@
+{
+    "name": "rob-lester-jr04/call-forwarding",
+    "description": "A methodology that will reduce database writes and improve inbound request handling",
+    "type": "library",
+    "require": {
+        "predis/predis": "^2.2"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.2",
+        "orchestra/testbench": "^6.23|^7.6|^8.0|^9.0"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Lester\\CallForwarding\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Lester\\CallForwarding\\CallForwardingServiceProvider"
+            ]
+        }
+    },
+    "authors": [
+        {
+            "name": "Rob Lester",
+            "email": "robertlesterjr@mac.com"
+        }
+    ],
+    "config": {
+        "allow-plugins": {
+            "kylekatarnls/update-helper": true
+        }
+    }
+}
