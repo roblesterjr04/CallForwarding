@@ -4,18 +4,24 @@ namespace Tests;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
 use Mockery;
 use Orchestra\Testbench\TestCase as Orchestra;
 
 class TestCase extends Orchestra
 {
+	protected function getPackageProviders($app)
+	{
+		return [\Lester\CallForwarding\CallForwardingServiceProvider::class];
+	}
+	
 	protected function setUp(): void
 	{
 		/* Factory::guessFactoryNamesUsing(
 			fn (string $modelName) => 'Spatie\\Health\\Database\\Factories\\'.class_basename($modelName).'Factory'
 		); */
 		
-		if (!function_exists('app')) {
+		/* if (!function_exists('app')) {
 			function app($class) {
 				return new $class;
 			}
@@ -39,10 +45,15 @@ class TestCase extends Orchestra
 			{
 				return $string;
 			}
-		}
+		} */
 		
 		parent::setUp();
 		
+		Schema::create('test_models', function (Blueprint $table) {
+			$table->id();
+			$table->string('data')->nullable();
+			$table->timestamps();
+		});
 				
 	}
 }

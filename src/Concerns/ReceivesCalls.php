@@ -3,6 +3,7 @@
 namespace Lester\CallForwarding\Concerns;
 
 use Illuminate\Support\Facades\Redis;
+use Lester\CallForwarding\Facades\Forward;
 use Illuminate\Support\Str;
 
 trait ReceivesCalls
@@ -35,8 +36,8 @@ trait ReceivesCalls
 		$attributes['updated_at'] = now();
 		$attributes['created_at'] = now();
 		$instance = new static($attributes);
-		Redis::connection('cache')->sadd($instance->callForwardingCacheSetsKey('insert'), json_encode($attributes));
-
+		Forward::handler()->putItem($instance->callForwardingCacheSetsKey('insert'), json_encode($attributes));
+		
 		return new static($attributes);
 	}
 
@@ -44,7 +45,7 @@ trait ReceivesCalls
 	{
 		$attributes['id'] = $this->id;
 		$attributes['updated_at'] = now();
-		Redis::connection('cache')->sadd($this->callForwardingCacheSetsKey('update'), json_encode($attributes));
+		Forward::handler()->putItem($this->callForwardingCacheSetsKey('update'), json_encode($attributes));
 
 		return false;
 	}
@@ -53,30 +54,15 @@ trait ReceivesCalls
 	{
 		$attributes['updated_at'] = now();
 		$attributes['created_at'] = now();
-		Redis::connection('cache')->sadd($this->callForwardingCacheSetsKey('insert'), json_encode($attributes));
+		Forward::handler()->putItem($this->callForwardingCacheSetsKey('insert'), json_encode($attributes));
 
 		return false;
 	}
 
-	public function callForwardingListQueue($prefix)
-	{
-		$members = Redis::connection('cache')->smembers($this->callForwardingCacheSetsKey($prefix));
-
-		return collect(array_map(function ($member) {
-			return json_decode($member, true);
-		}, $members));
-	}
-
 	public function callForwardingGetQueue($prefix, $id = null)
 	{
-		$members = Redis::connection('cache')->smembers($this->callForwardingCacheSetsKey($prefix));
-
-		$members = collect(array_map(function ($member) use ($prefix) {
-			Redis::connection('cache')->srem($this->callForwardingCacheSetsKey($prefix), $member);
-
-			return json_decode($member, true);
-		}, $members));
-
+		$members = Forward::handler()->getAllItems($this->callForwardingCacheSetsKey($prefix));
+		
 		if ($id !== null) {
 			return $members->where('id', $id)->first();
 		}
@@ -187,7 +173,7 @@ trait ReceivesCalls
 	{
 		try {
 			// Attempt to get a value from Redis
-			Redis::ping();
+			Forward::handler();
 
 			$this->enableCallForwarding = true;
 		} catch (\Exception $e) {

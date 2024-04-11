@@ -12,12 +12,23 @@ use Illuminate\Support\ServiceProvider;
 
 class CallForwardingServiceProvider extends ServiceProvider
 {
+	const CONFIG_PATH = __DIR__ . '/../config/call-forwarding.php';
 	/**
 	 * Register services.
 	 */
 	public function register(): void
 	{
-		//
+		$this->mergeConfigFrom(
+			self::CONFIG_PATH,
+			'call-forwarding'
+		);
+		
+		$this->app->bind('forward', function() {
+			return new CallManager();
+		});
+		
+		$loader = \Illuminate\Foundation\AliasLoader::getInstance();
+		$loader->alias('Forward', 'Lester\CallForwarding\Facades\Forward');
 	}
 
 	/**
@@ -25,6 +36,10 @@ class CallForwardingServiceProvider extends ServiceProvider
 	 */
 	public function boot(): void
 	{
+		$this->publishes([
+			self::CONFIG_PATH => config_path('call-forwarding.php'),
+		], 'config');
+		
 		$this->app->booted(function () {
 			$schedule = $this->app->make(Schedule::class);
 			$schedule->call(function () {
