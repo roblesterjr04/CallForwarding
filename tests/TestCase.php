@@ -12,7 +12,7 @@ class TestCase extends Orchestra
 {
 	protected function getPackageProviders($app)
 	{
-		return [\Lester\CallForwarding\CallForwardingServiceProvider::class];
+		return [\Lester\Forwarding\CallForwardingServiceProvider::class];
 	}
 	
 	protected function setUp(): void

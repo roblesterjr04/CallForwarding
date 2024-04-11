@@ -1,6 +1,6 @@
 <?php
 
-namespace Lester\CallForwarding;
+namespace Lester\Forwarding;
 
 class CallManager
 {

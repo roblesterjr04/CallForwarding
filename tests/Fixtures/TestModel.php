@@ -3,8 +3,8 @@
 namespace Tests\Fixtures;
 
 use Illuminate\Database\Eloquent\Model;
-use Lester\CallForwarding\Concerns\ReceivesCalls;
-use Lester\CallForwarding\Contracts\ShouldForward;
+use Lester\Forwarding\ReceivesCalls;
+use Lester\Forwarding\ShouldForward;
 
 class TestModel extends Model implements ShouldForward
 {

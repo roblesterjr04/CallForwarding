@@ -1,9 +1,9 @@
 <?php
 
-namespace Lester\CallForwarding\Handlers;
+namespace Lester\Forwarding\Handlers;
 
-use Lester\CallForwarding\CallManager;
-use Lester\CallForwarding\Contracts\CallForwardingDriver;
+use Lester\Forwarding\CallManager;
+use Lester\Forwarding\Contracts\CallForwardingDriver;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Collection;
 

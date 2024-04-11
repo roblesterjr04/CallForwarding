@@ -1,8 +1,8 @@
 <?php
 
-namespace Lester\CallForwarding;
+namespace Lester\Forwarding;
 
-use Lester\CallForwarding\Contracts\ShouldForward;
+use Lester\Forwarding\ShouldForward;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Container\Container;
 use Illuminate\Database\Eloquent\Model;
@@ -28,7 +28,7 @@ class CallForwardingServiceProvider extends ServiceProvider
 		});
 		
 		$loader = \Illuminate\Foundation\AliasLoader::getInstance();
-		$loader->alias('Forward', 'Lester\CallForwarding\Facades\Forward');
+		$loader->alias('Forward', 'Lester\Forwarding\Facades\Forward');
 	}
 
 	/**
@@ -40,6 +40,8 @@ class CallForwardingServiceProvider extends ServiceProvider
 			self::CONFIG_PATH => config_path('call-forwarding.php'),
 		], 'config');
 		
+		$frequency = config('call-forwarding.frequency');
+		
 		$this->app->booted(function () {
 			$schedule = $this->app->make(Schedule::class);
 			$schedule->call(function () {
@@ -48,7 +50,7 @@ class CallForwardingServiceProvider extends ServiceProvider
 					$call->forwardCallsToInsert();
 					$call->forwardCallsToUpdate();
 				}
-			})->everyMinute();
+			})->$frequency();
 		});
 	}
 

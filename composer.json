@@ -12,7 +12,7 @@
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "Lester\\CallForwarding\\": "src/"
+            "Lester\\Forwarding\\": "src/"
         }
     },
     "autoload-dev": {
@@ -23,7 +23,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Lester\\CallForwarding\\CallForwardingServiceProvider"
+                "Lester\\Forwarding\\CallForwardingServiceProvider"
             ]
         }
     },

@@ -1,6 +1,6 @@
 <?php
 
-namespace Lester\CallForwarding\Facades;
+namespace Lester\Forwarding\Facades;
 
 use Illuminate\Support\Facades\Facade;
 

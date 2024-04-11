@@ -1,6 +1,6 @@
 <?php
 
-namespace Lester\CallForwarding\Contracts;
+namespace Lester\Forwarding\Contracts;
 
 use Illuminate\Support\Collection;
 

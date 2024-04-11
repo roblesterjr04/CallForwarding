@@ -4,7 +4,7 @@ namespace Tests;
 
 use Tests\TestCase;
 use Tests\Fixtures\TestModel;
-use Lester\CallForwarding\Facades\Forward;
+use Lester\Forwarding\Facades\Forward;
 
 class BasicTest extends TestCase
 {		
@@ -33,7 +33,7 @@ class BasicTest extends TestCase
 	{
 		$driver = Forward::handler();
 			
-		$this->assertInstanceOf('Lester\CallForwarding\Contracts\CallForwardingDriver', $driver);
+		$this->assertInstanceOf('Lester\Forwarding\Contracts\CallForwardingDriver', $driver);
 	}
 	
 	public function testModelDoesNotPersistAndIsQueued(): void

@@ -1,6 +1,6 @@
 <?php
 
-namespace Lester\CallForwarding\Handlers;
+namespace Lester\Forwarding\Handlers;
 
 abstract class Handler
 {

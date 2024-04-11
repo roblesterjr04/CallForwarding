@@ -1,9 +1,9 @@
 <?php
 
-namespace Lester\CallForwarding\Concerns;
+namespace Lester\Forwarding;
 
 use Illuminate\Support\Facades\Redis;
-use Lester\CallForwarding\Facades\Forward;
+use Lester\Forwarding\Facades\Forward;
 use Illuminate\Support\Str;
 
 trait ReceivesCalls
