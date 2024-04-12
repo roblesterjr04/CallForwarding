@@ -82,6 +82,30 @@ Register the custom class in the config file under the handler array and use the
 ], 
 ```
 
+```php
+<?php
+
+namespace App\Handlers; // or whatever namespace you want to use
+
+use Lester\Forwarding\Contracts\CallForwardingDriver;
+use Illuminate\Support\Collection;
+
+class MyHandler implements CallForwardingDriver
+{
+	// Worth noting, $key is only ever 'update' or 'insert'
+	public function putItem($key, $data): void
+	{
+		// Store the db write.
+	}
+	
+	public function getAllItems($key): Collection
+	{
+		// Retrieve the collection of stored db writes
+	}
+}
+
+```
+
 ## Support
 
 Please [open an issue](https://github.com/fraction/readme-boilerplate/issues/new) for support.
