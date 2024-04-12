@@ -8,9 +8,9 @@ use Lester\Forwarding\ShouldForward;
 
 class TestModel extends Model implements ShouldForward
 {
-	protected $fillable = [
-		'data',
-	];
-	
-	use ReceivesCalls;
+    protected $fillable = [
+        'data',
+    ];
+
+    use ReceivesCalls;
 }

@@ -2,184 +2,242 @@
 
 namespace Lester\Forwarding;
 
+use Closure;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Redis;
-use Lester\Forwarding\Facades\Forward;
 use Illuminate\Support\Str;
+use Lester\Forwarding\Facades\Forward;
+use Opis\Closure\SerializableClosure;
 
 trait ReceivesCalls
 {
-	public $enableCallForwarding = false;
+    public $enableCallForwarding = false;
 
-	public static function bootReceivesCalls()
-	{
-		static::saving(function ($model) {
-			if ($model->enableCallForwarding) {
-				if ($model->exists) {
-					return $model->performUpdateTriage($model->getDirty());
-				} else {
-					return $model->performCreateTriage($model->getDirty());
-				}
-			}
-		});
+    public $afterCallForwarding = null;
 
-		static::retrieved(function ($model) {
-			$forwarded = $model->callForwardingGetQueue('update', $model->id);
-			$model->forceFill($forwarded ?? []);
-			if (count($forwarded ?? []) > 0) {
-				$model->saveQuietly();
-			}
-		});
-	}
+    public static function bootReceivesCalls()
+    {
+        static::saving(function ($model) {
+            if ($model->enableCallForwarding) {
+                if ($model->exists) {
+                    return $model->performUpdateTriage($model->getDirty());
+                } else {
+                    return $model->performCreateTriage($model->getDirty());
+                }
+            }
+        });
 
-	public static function createTriage(array $attributes)
-	{
-		$attributes['updated_at'] = now();
-		$attributes['created_at'] = now();
-		$instance = new static($attributes);
-		Forward::handler()->putItem($instance->callForwardingCacheSetsKey('insert'), json_encode($attributes));
-		
-		return new static($attributes);
-	}
+        static::retrieved(function ($model) {
+            $forwarded = $model->callForwardingGetQueue('update', $model->id);
+            $model->forceFill($forwarded ?? []);
+            if (count($forwarded ?? []) > 0) {
+                $model->saveQuietly();
+            }
+        });
+    }
 
-	public function performUpdateTriage(array $attributes)
-	{
-		$attributes['id'] = $this->id;
-		$attributes['updated_at'] = now();
-		Forward::handler()->putItem($this->callForwardingCacheSetsKey('update'), json_encode($attributes));
+    public function setAfterCallForwardingAttribute(Closure|string $callback)
+    {
+        if (is_string($callback)) {
+            unset($this->attributes['afterCallForwarding']);
+        }
+    }
 
-		return false;
-	}
+    public static function createTriage(array $attributes)
+    {
+        $attributes['updated_at'] = now();
+        $attributes['created_at'] = now();
+        $instance = new static($attributes);
+        Forward::handler()->putItem($instance->callForwardingCacheSetsKey('insert'), json_encode($attributes));
 
-	public function performCreateTriage(array $attributes)
-	{
-		$attributes['updated_at'] = now();
-		$attributes['created_at'] = now();
-		Forward::handler()->putItem($this->callForwardingCacheSetsKey('insert'), json_encode($attributes));
+        return new static($attributes);
+    }
 
-		return false;
-	}
+    public function performUpdateTriage(array $attributes)
+    {
+        $attributes['id'] = $this->id;
+        $attributes['updated_at'] = now();
+        if ($this->afterCallForwarding) {
+            $attributes['afterCallForwarding'] = $this->serializeForwardCallback();
+        }
+        Forward::handler()->putItem($this->callForwardingCacheSetsKey('update'), json_encode($attributes));
 
-	public function callForwardingGetQueue($prefix, $id = null)
-	{
-		$members = Forward::handler()->getAllItems($this->callForwardingCacheSetsKey($prefix));
-		
-		if ($id !== null) {
-			return $members->where('id', $id)->first();
-		}
+        return false;
+    }
 
-		return $members;
-	}
+    public function performCreateTriage(array $attributes)
+    {
+        $attributes['updated_at'] = now();
+        $attributes['created_at'] = now();
+        if ($this->afterCallForwarding) {
+            $attributes['afterCallForwarding'] = $this->serializeForwardCallback();
+        }
+        Forward::handler()->putItem($this->callForwardingCacheSetsKey('insert'), json_encode($attributes));
 
-	public function callForwardingDataRegroup($data)
-	{
-		$groups = [];
+        return false;
+    }
 
-		foreach ($data as $item) {
-			foreach ($item as $key => $value) {
-				if ($key !== 'id') {
-					// Initialize the group if it doesn't exist
-					if (! isset($groups[$key])) {
-						$groups[$key] = [];
-					}
-					// Assign value to group based on 'id'
-					$groups[$key][$item['id']] = $value;
-				}
-			}
-		}
+    public function callForwardingGetQueue($prefix, $id = null)
+    {
+        $members = Forward::handler()->getAllItems($this->callForwardingCacheSetsKey($prefix));
 
-		// Convert array to collection if needed
-		return collect($groups);
-	}
+        if ($id !== null) {
+            return $members->where('id', $id)->first();
+        }
 
-	public function callForwardingTransitionInserts(): bool
-	{
-		$members = $this->callForwardingGetQueue('insert');
+        return $members;
+    }
 
-		if ($members->count() == 0) {
-			return false;
-		}
+    public function callForwardingDataRegroup($data)
+    {
+        $groups = [];
 
-		$objects = $members->map(function ($item) {
-			return new static($item);
-		});
+        foreach ($data as $item) {
+            foreach ($item as $key => $value) {
+                if ($key !== 'id') {
+                    // Initialize the group if it doesn't exist
+                    if (! isset($groups[$key])) {
+                        $groups[$key] = [];
+                    }
+                    // Assign value to group based on 'id'
+                    $groups[$key][$item['id']] = $value;
+                }
+            }
+        }
 
-		$keys = [];
-		$params = [];
+        // Convert array to collection if needed
+        return collect($groups);
+    }
 
-		foreach ($objects->toArray() as $subarray) {
-			$keys = array_merge($keys, array_keys($subarray));
-		}
+    public function callForwardingTransitionInserts(): bool
+    {
+        $members = $this->callForwardingGetQueue('insert');
 
-		$keys = array_unique($keys);
+        if ($members->count() == 0) {
+            return false;
+        }
 
-		$values = implode(',', $objects->map(function ($model) use ($keys, &$params) {
-			foreach ($keys as $key) {
-				$row[$key] = '?';
-				$params[] = $model->$key;
-			}
+        $objects = $members->map(function ($item) {
+            $instance = new static($item);
+            $instance->afterForward(unserialize($item['afterCallForwarding'])->getClosure());
 
-			return '('.implode(',', $row).')';
-		})->toArray());
+            return $instance;
+        });
 
-		$keys = implode(',', $keys);
-		$query = "INSERT INTO {$this->getTable()} ($keys) values $values";
+        $keys = [];
+        $params = [];
 
-		return \DB::insert($query, $params);
-	}
+        foreach ($objects->toArray() as $subarray) {
+            $keys = array_merge($keys, array_keys($subarray));
+        }
 
-	public function callForwardingTransitionUpdates(): int
-	{
-		$members = $this->callForwardingGetQueue('update');
+        $keys = array_unique($keys);
 
-		if ($members->count() == 0) {
-			return 0;
-		}
+        $values = implode(',', $objects->map(function ($model) use ($keys, &$params) {
+            foreach ($keys as $key) {
+                $row[$key] = '?';
+                $params[] = $model->$key;
+            }
+            $closure = $model->afterCallForwarding;
+            $closure($model->toArray());
 
-		$data = $this->callForwardingDataRegroup($members);
-		$ids = $members->pluck('id')->toArray();
+            return '('.implode(',', $row).')';
+        })->toArray());
 
-		$sets = [];
-		$params = [];
+        $keys = implode(',', $keys);
+        $query = "INSERT INTO {$this->getTable()} ($keys) values $values";
 
-		foreach ($data as $field => $row) {
-			$cases = [];
-			foreach ($row as $index => $value) {
-				$cases[] = "WHEN {$index} then ?";
-				$params[] = $value;
-			}
-			$cases = implode(' ', $cases);
-			$sets[] = "`{$field}` = CASE `id` {$cases} END";
-		}
-		$sets = implode(', ', $sets);
-		$ids = implode(',', $ids);
+        return \DB::insert($query, $params);
+    }
 
-		$query = "UPDATE {$this->getTable()} SET $sets WHERE `id` in ({$ids})";
-		$dbResult = \DB::update($query, $params);
+    public function callForwardingTransitionUpdates(): int
+    {
+        $members = $this->callForwardingGetQueue('update');
 
-		return $dbResult;
-	}
+        if ($members->count() == 0) {
+            return 0;
+        }
 
-	public function callForwardingCachePrefix()
-	{
-		return Str::snake(class_basename(static::class)).'_';
-	}
+        $data = $this->callForwardingDataRegroup($members);
+        $ids = $members->pluck('id')->toArray();
+        $callbacks = $members->map(function ($member) {
+            return ['id' => $member['id'], 'callback' => [
+                unserialize($member['afterCallForwarding']),
+                Arr::except($member, 'afterCallForwarding'),
+            ]];
+        })->pluck('callback', 'id');
+        unset($data['afterCallForwarding']);
 
-	public function callForwardingCacheSetsKey($prefix)
-	{
-		return $this->callForwardingCachePrefix()."_set_$prefix";
-	}
+        $sets = [];
+        $params = [];
 
-	public function callForwarding()
-	{
-		try {
-			// Attempt to get a value from Redis
-			Forward::handler();
+        foreach ($data as $field => $row) {
+            $cases = [];
+            foreach ($row as $index => $value) {
+                $cases[] = "WHEN {$index} then ?";
+                $params[] = $value;
+            }
+            $cases = implode(' ', $cases);
+            $sets[] = "`{$field}` = CASE `id` {$cases} END";
+        }
+        $sets = implode(', ', $sets);
+        $ids = implode(',', $ids);
 
-			$this->enableCallForwarding = true;
-		} catch (\Exception $e) {
+        $query = "UPDATE {$this->getTable()} SET $sets WHERE `id` in ({$ids})";
+        $dbResult = \DB::update($query, $params);
 
-		}
+        if ($dbResult > 0) {
+            $this->afterForwardExecute($callbacks);
+        }
 
-		return $this;
-	}
+        return $dbResult;
+    }
+
+    public function callForwardingCachePrefix()
+    {
+        return Str::snake(class_basename(static::class)).'_';
+    }
+
+    public function callForwardingCacheSetsKey($prefix)
+    {
+        return $this->callForwardingCachePrefix()."_set_$prefix";
+    }
+
+    public function forwarded(): self
+    {
+        try {
+            // Attempt to get a value from Redis
+            Forward::handler();
+
+            $this->enableCallForwarding = true;
+        } catch (\Exception $e) {
+
+        }
+
+        return $this;
+    }
+
+    public function afterForward(Closure $callback): self
+    {
+        $this->afterCallForwarding = $callback;
+
+        return $this;
+    }
+
+    public function serializeForwardCallback()
+    {
+        if ($this->afterCallForwarding === null) {
+            return null;
+        }
+
+        return serialize(new SerializableClosure($this->afterCallForwarding));
+    }
+
+    public function afterForwardExecute(Collection $callbacks)
+    {
+        foreach ($callbacks as $index => $callback) {
+            $callback[0]($callback[1]);
+        }
+    }
 }

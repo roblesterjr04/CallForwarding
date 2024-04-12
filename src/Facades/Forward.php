@@ -6,15 +6,15 @@ use Illuminate\Support\Facades\Facade;
 
 class Forward extends Facade
 {
-	/* public static function fake($jobsToFake = [])
-	{
-		static::swap($fake = new SObjectsFake(static::getFacadeRoot()));
+    /* public static function fake($jobsToFake = [])
+    {
+        static::swap($fake = new SObjectsFake(static::getFacadeRoot()));
 
-		return $fake;
-	} */
+        return $fake;
+    } */
 
-	protected static function getFacadeAccessor()
-	{
-		return 'forward';
-	}
+    protected static function getFacadeAccessor()
+    {
+        return 'forward';
+    }
 }
