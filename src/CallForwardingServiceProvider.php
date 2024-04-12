@@ -40,9 +40,8 @@ class CallForwardingServiceProvider extends ServiceProvider
 			self::CONFIG_PATH => config_path('call-forwarding.php'),
 		], 'config');
 		
-		$frequency = config('call-forwarding.frequency');
-		
 		$this->app->booted(function () {
+			$frequency = config('call-forwarding.frequency');
 			$schedule = $this->app->make(Schedule::class);
 			$schedule->call(function () {
 				foreach ($this->findForwardingModels() as $forwardClass) {

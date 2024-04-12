@@ -13,7 +13,7 @@ class FileHandler extends CallManager implements CallForwardingDriver
 		$subKey = md5($data);
 		$dir = $this->root() . '/' . $key;
 		
-		if (!file_exists($dir)) {
+		if (!file_exists($dir) || !is_dir($dir)) {
 			mkdir($dir);
 		}
 		
@@ -46,13 +46,21 @@ class FileHandler extends CallManager implements CallForwardingDriver
 	
 	private function root()
 	{
-		return $this->normalPath(config('call-forwarding.file_path'));
+		$path = $this->normalPath(config('call-forwarding.file_path'));
+		if (!file_exists($path) || !is_dir($path)) {
+			mkdir($path);
+		}
+		return $path;
 	}
 	
 	private function normalPath($path)
 	{
+		$start = '';
+		if (substr($path, 0, 1) === '/') {
+			$start = '/';
+		}
 		$parts = explode("/", $path);
-		return '/' . implode('/', array_filter($parts, function($part) {
+		return $start . implode('/', array_filter($parts, function($part) {
 			return $part != "";
 		}));
 	}
