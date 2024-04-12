@@ -46,8 +46,8 @@ class CallForwardingServiceProvider extends ServiceProvider
 			$schedule->call(function () {
 				foreach ($this->findForwardingModels() as $forwardClass) {
 					$call = $this->app->make($forwardClass);
-					$call->forwardCallsToInsert();
-					$call->forwardCallsToUpdate();
+					$call->callForwardingTransitionInserts();
+					$call->callForwardingTransitionUpdates();
 				}
 			})->$frequency();
 		});

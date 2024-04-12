@@ -50,4 +50,21 @@ class BasicTest extends TestCase
 		$this->assertGreaterThan(0, $files->count());
 		
 	}
+	
+	public function testUpdates(): void
+	{
+		$model = new TestModel([
+			'data' => 'test value',
+		]);
+		
+		$this->assertTrue($model->save());
+		$this->assertGreaterThan(0, $model->id);
+		$result = $model->callForwarding()->update([
+			'data' => 'saved',
+		]);
+		$this->assertFalse($result);
+		
+		$this->assertGreaterThan(0, $model->callForwardingTransitionUpdates());
+		
+	}
 }
