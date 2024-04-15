@@ -22,12 +22,12 @@ class RedisHandler extends CallManager implements CallForwardingDriver
         Redis::connection($this->connection)->sadd($key, $data);
     }
 
-    public function getAllItems($key): Collection
+    public function getAllItems($key, $purge = false): Collection
     {
         $members = Redis::connection($this->connection)->smembers($key);
 
-        return collect(array_map(function ($member) use ($key) {
-            Redis::connection($this->connection)->srem($key, $member);
+        return collect(array_map(function ($member) use ($key, $purge) {
+            if ($purge) Redis::connection($this->connection)->srem($key, $member);
 
             return json_decode($member, true);
         }, $members));

@@ -23,17 +23,17 @@ class FileHandler extends CallManager implements CallForwardingDriver
 
     }
 
-    public function getAllItems($key): Collection
+    public function getAllItems($key, $purge = false): Collection
     {
         $dir = $this->root().'/'.$key;
 
         $members = scandir($dir);
 
-        return collect(array_map(function ($member) use ($dir) {
+        return collect(array_map(function ($member) use ($dir, $purge) {
             try {
                 $member = $dir.'/'.$member;
                 $content = file_get_contents($member);
-                unlink($member);
+                if ($purge) unlink($member);
 
                 return json_decode($content, true);
             } catch (\Exception $e) {

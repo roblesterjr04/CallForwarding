@@ -29,7 +29,7 @@ trait ReceivesCalls
         });
 
         static::retrieved(function ($model) {
-            $forwarded = $model->callForwardingGetQueue('update', $model->id);
+            $forwarded = $model->callForwardingGetQueue('update', $model->id, false);
             $model->forceFill($forwarded ?? []);
             if (count($forwarded ?? []) > 0) {
                 $model->saveQuietly();
@@ -78,9 +78,9 @@ trait ReceivesCalls
         return false;
     }
 
-    public function callForwardingGetQueue($prefix, $id = null)
+    public function callForwardingGetQueue($prefix, $id = null, $purge = true)
     {
-        $members = Forward::handler()->getAllItems($this->callForwardingCacheSetsKey($prefix));
+        $members = Forward::handler()->getAllItems($this->callForwardingCacheSetsKey($prefix), $purge);
 
         if ($id !== null) {
             return $members->where('id', $id)->first();
@@ -163,7 +163,7 @@ trait ReceivesCalls
         $ids = $members->pluck('id')->toArray();
         $callbacks = $members->map(function ($member) {
             return ['id' => $member['id'], 'callback' => [
-                unserialize($member['afterCallForwarding']),
+                unserialize($member['afterCallForwarding'] ?? ''),
                 Arr::except($member, 'afterCallForwarding'),
             ]];
         })->pluck('callback', 'id');
@@ -237,7 +237,9 @@ trait ReceivesCalls
     public function afterForwardExecute(Collection $callbacks)
     {
         foreach ($callbacks as $index => $callback) {
-            $callback[0]($callback[1]);
+            if ($callback[0] !== false) {
+                $callback[0]($callback[1]);
+            }
         }
     }
 }
