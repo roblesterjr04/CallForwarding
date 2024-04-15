@@ -98,9 +98,11 @@ class MyHandler implements CallForwardingDriver
 		// Store the db write.
 	}
 	
-	public function getAllItems($key): Collection
+	public function getAllItems($key, $purge = false): Collection
 	{
 		// Retrieve the collection of stored db writes
+		
+		// Purge each item if the $purge flag is true.
 	}
 }
 
