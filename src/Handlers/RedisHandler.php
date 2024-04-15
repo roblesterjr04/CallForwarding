@@ -28,7 +28,7 @@ class RedisHandler extends CallManager implements CallForwardingDriver
 
         return collect(array_map(function ($member) use ($key, $purge) {
             if ($purge) Redis::connection($this->connection)->srem($key, $member);
-
+            echo $key;
             return json_decode($member, true);
         }, $members));
     }
