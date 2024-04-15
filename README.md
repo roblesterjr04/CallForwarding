@@ -1,7 +1,7 @@
 # Laravel Call Forwarding
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/rob-lester-jr04/call-forwarding.svg)](https://packagist.org/packages/rob-lester-jr04/call-forwarding)
-[![PHP Composer](https://github.com/roblesterjr04/call-forwarding/actions/workflows/test-suite.yml/badge.svg)](https://github.com/roblesterjr04/call-forwarding/actions/workflows/test-suite.yml)
+[![PHP Composer](https://github.com/roblesterjr04/CallForwarding/actions/workflows/test-suite.yml/badge.svg)](https://github.com/roblesterjr04/CallForwarding/actions/workflows/test-suite.yml)
 [![Total Downloads](https://img.shields.io/packagist/dt/rob-lester-jr04/call-forwarding.svg)](https://packagist.org/packages/rob-lester-jr04/call-forwarding)
 
 Our innovative "CallForwarding" package optimizes database performance during high-traffic scenarios by intelligently queuing up database writes on eloquent models. By consolidating these writes into a single operation, it alleviates strain on database resources, ensuring smooth operations even during peak times. With ForwardSync, your system gains efficiency and resilience, allowing you to focus on delivering exceptional user experiences without worrying about database constraints.
