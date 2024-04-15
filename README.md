@@ -43,7 +43,7 @@ Then, to make an update or an insert, call `callForwarding()` before your persis
 $visit = new PageVisit;
 $visit->hits = 15;
 
-$visit->callForwarding()->save(); // This will return false. That is expected.
+$visit-> forwarded()->save(); // This will return false. That is expected.
 ```
 
 Now by default, every minute, anything that has been queued this way will get persisted.
@@ -58,6 +58,20 @@ Your choices out of the box are File or Redis. To use the Redis option, add this
 
 ```env
 CF_DRIVER=redis
+```
+
+### Write Callbacks
+
+If you have code you'd like to execute after the write has occured, you can chain the `afterForward` method with a closure as the parameter. Example.
+
+```php
+
+$model = new PageVisit;
+
+$visit->afterForward(function($attrs) {
+	// Do something else with the attributes.
+})->forwarded()->save();
+
 ```
 
 ### Publishing the config file.
