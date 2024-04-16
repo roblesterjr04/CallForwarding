@@ -34,10 +34,10 @@ class Memcached extends CallManager implements CallForwardingDriver
     {    
         $members = $this->connection->fetchAll();
         
-        dd($members);
-    
+        if ($members === false) {
+            throw new \Exception("Memcached failed with code: " . $this->connection->getResultCode());
+        }    
         return collect($members)->filter(function($item) {
-            dd($item);
             return Str::of($item)->contains("$key_");
         })->map(function($item) {
             
