@@ -21,15 +21,15 @@ class Memcached extends CallManager implements CallForwardingDriver
             $config['options'],
             $config['sasl'],
         );
-        
-        dd($this->connection);
     }
     
     public function putItem($key, $data): void
     {
         $subKey = md5($data);
         
-        $this->connection->set("{$key}_{$subKey}", $data);
+        if ($this->connection->set("{$key}_{$subKey}", $data) === false) {
+            $this->memcachedError();
+        };
     }
     
     public function getAllItems($key, $purge = false): Collection
@@ -37,12 +37,17 @@ class Memcached extends CallManager implements CallForwardingDriver
         $members = $this->connection->fetchAll();
         
         if ($members === false) {
-            throw new \Exception("Memcached failed with code: " . $this->connection->getResultCode());
+            $this->memcachedError();
         }    
         return collect($members)->filter(function($item) {
             return Str::of($item)->contains("$key_");
         })->map(function($item) {
             
         });
+    }
+    
+    private function memcachedError()
+    {
+        throw new \Exception("Memcached failed with code: " . $this->connection->getResultCode());
     }
 }
