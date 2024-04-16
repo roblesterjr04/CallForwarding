@@ -15,11 +15,15 @@ class Memcached extends CallManager implements CallForwardingDriver
     public function __construct()
     {
         $config = config('cache.stores.memcached');
+        
+        $creds = $config['sasl'];
+        if ($creds[0] === null) $creds = [];
+        
         $this->connection = (new MemcachedConnector())->connect(
             $config['servers'],
             $config['persistent_id'],
             $config['options'],
-            $config['sasl'],
+            $creds,
         );
     }
     
