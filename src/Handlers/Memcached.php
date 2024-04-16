@@ -46,11 +46,12 @@ class Memcached extends CallManager implements CallForwardingDriver
         
         $data = collect($members)->filter(function($item) use ($key) {
             return Str::of($item)->contains("$key:");
-        })->map(function($item) {
-            return $this->connection->get($item);
+        })->map(function($key) {
+            $data = $this->connection->get($key);
+            if ($purge) $this->connection->delete($key);
+            return $data;
         });
         
-        if ($purge) $this->connection->flush();
         return $data;
     }
     
