@@ -35,9 +35,7 @@ jobs:
         image: memcached:1.5
         ports:
           - 11211 # memcached is available at this port inside the container
-      
-        command: ["-m", "128"]
-    
+          
     steps:
     - uses: actions/checkout@v3
     
