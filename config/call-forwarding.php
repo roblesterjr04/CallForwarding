@@ -7,6 +7,7 @@ return [
     'handlers' => [
         'redis' => \Lester\Forwarding\Handlers\RedisHandler::class,
         'file' => \Lester\Forwarding\Handlers\FileHandler::class,
+        'memcached' => \Lester\Forwarding\Handlers\Memcached::class,
     ],
 
     'file_path' => env('CF_FILE_PATH', '/tmp/cf'),

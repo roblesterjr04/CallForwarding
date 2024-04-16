@@ -26,6 +26,33 @@ jobs:
     - name: Run test suite
       run: composer test
       
+  memcached-handler:
+  
+    runs-on: ubuntu-latest
+    
+    services:
+      memcached: # This is the service name used when running ddev commands accepting the --service flag
+        image: memcached:1.5
+        restart: always
+        ports:
+          - 11211 # memcached is available at this port inside the container
+      
+        command: ["-m", "128"]
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress
+    
+    # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
+    # Docs: https://getcomposer.org/doc/articles/scripts.md
+
+    - name: Run test suite
+      env:
+        CF_DRIVER: memcached
+      run: composer test
+      
   redis-handler:
   
     runs-on: ubuntu-latest

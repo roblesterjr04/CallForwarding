@@ -24,7 +24,7 @@ class CallForwardingServiceProvider extends ServiceProvider
         );
 
         $this->app->bind('forward', function () {
-            return new CallManager();
+            return (new CallManager())->handler();
         });
 
         $loader = \Illuminate\Foundation\AliasLoader::getInstance();

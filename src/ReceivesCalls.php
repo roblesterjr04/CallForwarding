@@ -49,7 +49,7 @@ trait ReceivesCalls
         $attributes['updated_at'] = now();
         $attributes['created_at'] = now();
         $instance = new static($attributes);
-        Forward::handler()->putItem($instance->callForwardingCacheSetsKey('insert'), json_encode($attributes));
+        Forward::putItem($instance->callForwardingCacheSetsKey('insert'), json_encode($attributes));
 
         return new static($attributes);
     }
@@ -61,7 +61,7 @@ trait ReceivesCalls
         if ($this->afterCallForwarding) {
             $attributes['afterCallForwarding'] = $this->serializeForwardCallback();
         }
-        Forward::handler()->putItem($this->callForwardingCacheSetsKey('update'), json_encode($attributes));
+        Forward::putItem($this->callForwardingCacheSetsKey('update'), json_encode($attributes));
 
         return false;
     }
@@ -73,14 +73,14 @@ trait ReceivesCalls
         if ($this->afterCallForwarding) {
             $attributes['afterCallForwarding'] = $this->serializeForwardCallback();
         }
-        Forward::handler()->putItem($this->callForwardingCacheSetsKey('insert'), json_encode($attributes));
+        Forward::putItem($this->callForwardingCacheSetsKey('insert'), json_encode($attributes));
 
         return false;
     }
 
     public function callForwardingGetQueue($prefix, $id = null, $purge = true)
     {
-        $members = Forward::handler()->getAllItems($this->callForwardingCacheSetsKey($prefix), $purge);
+        $members = Forward::getAllItems($this->callForwardingCacheSetsKey($prefix), $purge);
 
         if ($id !== null) {
             return $members->where('id', $id)->first();
