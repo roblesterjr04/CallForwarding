@@ -1,7 +1,7 @@
 {
     "name": "rob-lester-jr04/call-forwarding",
     "description": "A methodology that will reduce database writes and improve inbound request handling",
-    "keywords": ["database", "write", "forward", "cache", "batch", "bulk", "insert", "update", "redis"],
+    "keywords": ["database", "write", "forward", "cache", "batch", "bulk", "insert", "update", "redis", "batched", "delayed", "writes", "combined", "consolidated"],
     "type": "library",
     "require": {
         "predis/predis": "^2.2",
