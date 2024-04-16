@@ -31,23 +31,27 @@ class Memcached extends CallManager implements CallForwardingDriver
     {
         $subKey = md5($data);
         
-        if ($this->connection->set("{$key}:{$subKey}", $data, 60*60) === false) {
+        if ($this->connection->set("$key:$subKey", $data, 60*60) === false) {
             $this->memcachedError();
         };
     }
     
     public function getAllItems($key, $purge = false): Collection
     {    
-        $members = $this->connection->fetchAll();
+        $members = $this->connection->getAllKeys();
         
         if ($members === false) {
             $this->memcachedError();
         }    
-        return collect($members)->filter(function($item) {
+        
+        $data = collect($members)->filter(function($item) {
             return Str::of($item)->contains("$key:");
         })->map(function($item) {
-            
+            return $this->connection->get($item);
         });
+        
+        if ($purge) $this->connection->flush();
+        return $data;
     }
     
     private function memcachedError()
