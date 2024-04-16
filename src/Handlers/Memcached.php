@@ -27,7 +27,7 @@ class Memcached extends CallManager implements CallForwardingDriver
     {
         $subKey = md5($data);
         
-        if ($this->connection->set("{$key}_{$subKey}", $data) === false) {
+        if ($this->connection->set("{$key}:{$subKey}", $data, false, 60*60) === false) {
             $this->memcachedError();
         };
     }
@@ -40,7 +40,7 @@ class Memcached extends CallManager implements CallForwardingDriver
             $this->memcachedError();
         }    
         return collect($members)->filter(function($item) {
-            return Str::of($item)->contains("$key_");
+            return Str::of($item)->contains("$key:");
         })->map(function($item) {
             
         });
