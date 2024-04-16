@@ -32,9 +32,9 @@ jobs:
     
     services:
       memcached: # This is the service name used when running ddev commands accepting the --service flag
-        image: memcached:1.5
+        image: memcached
         ports:
-          - 11211 # memcached is available at this port inside the container
+          - 11211:11211 # memcached is available at this port inside the container
           
     steps:
     - uses: actions/checkout@v3
