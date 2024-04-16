@@ -21,6 +21,8 @@ class Memcached extends CallManager implements CallForwardingDriver
             $config['options'],
             $config['sasl'],
         );
+        
+        dd($this->connection);
     }
     
     public function putItem($key, $data): void
