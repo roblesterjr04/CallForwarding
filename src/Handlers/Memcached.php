@@ -6,6 +6,7 @@ use Illuminate\Support\Collection;
 use Lester\Forwarding\CallManager;
 use Lester\Forwarding\Contracts\CallForwardingDriver;
 use Illuminate\Cache\MemcachedConnector;
+use Illuminate\Support\Str;
 
 class Memcached extends CallManager implements CallForwardingDriver
 {
@@ -32,6 +33,8 @@ class Memcached extends CallManager implements CallForwardingDriver
     public function getAllItems($key, $purge = false): Collection
     {    
         $members = $this->connection->fetchAll();
+        
+        dd($members);
     
         return collect($members)->filter(function($item) {
             dd($item);
