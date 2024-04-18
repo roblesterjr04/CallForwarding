@@ -31,7 +31,7 @@ class Memcached extends CallManager implements CallForwardingDriver
     {
         $subKey = md5($data);
         
-        if ($this->connection->set("$key:$subKey", $data, 60*60) === false) {
+        if ($this->connection->set("$key:$subKey", $data, 1000000) === false) {
             $this->memcachedError();
         };
     }
