@@ -7,7 +7,7 @@ use Lester\Forwarding\CallManager;
 use Lester\Forwarding\Contracts\CallForwardingDriver;
 use Illuminate\Cache\MemcachedConnector;
 use Illuminate\Support\Str;
-use Memcached;
+use Memcached as MemcachedCore;
 
 class Memcached extends CallManager implements CallForwardingDriver
 {
@@ -24,7 +24,7 @@ class Memcached extends CallManager implements CallForwardingDriver
             $config['servers'],
             $config['persistent_id'] ?? 'cfmc',
             $config['options'] + [
-                Memcached::OPT_CONNECT_TIMEOUT => 2000
+                MemcachedCore::OPT_CONNECT_TIMEOUT => 2000
             ],
             $creds
         );
