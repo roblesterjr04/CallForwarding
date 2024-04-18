@@ -38,7 +38,7 @@ class Memcached extends CallManager implements CallForwardingDriver
         if ($this->connection->set("test", 'test') === false) {
             $this->memcachedError();
         };
-        $members = $this->connection->get('test');
+        $members = $this->connection->fetchAll();
         dd($members);
     }
     
