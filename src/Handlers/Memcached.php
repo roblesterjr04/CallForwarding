@@ -23,9 +23,7 @@ class Memcached extends CallManager implements CallForwardingDriver
         $this->connection = (new MemcachedConnector())->connect(
             $config['servers'],
             $config['persistent_id'] ?? 'cfmc',
-            $config['options'] + [
-                MemcachedCore::OPT_CONNECT_TIMEOUT => 2000000
-            ],
+            $config['options'],
             $creds
         );
         
@@ -38,6 +36,8 @@ class Memcached extends CallManager implements CallForwardingDriver
         if ($this->connection->set("$key:$subKey", $data) === false) {
             $this->memcachedError();
         };
+        $members = $this->connection->getAllKeys();
+        dd($members);
     }
     
     public function getAllItems($key, $purge = false): Collection
