@@ -25,21 +25,20 @@ class Memcached extends CallManager implements CallForwardingDriver
             $config['options'],
             $creds,
         );
-        
-        dd($this->connection);
     }
     
     public function putItem($key, $data): void
     {
         $subKey = md5($data);
         
-        if ($this->connection->set("$key:$subKey", $data, 1000000) === false) {
+        if ($this->connection->set("$key:$subKey", $data) === false) {
             $this->memcachedError();
         };
     }
     
     public function getAllItems($key, $purge = false): Collection
     {    
+        dd($this->connection);
         $members = $this->connection->getAllKeys();
                 
         if ($members === false) {
