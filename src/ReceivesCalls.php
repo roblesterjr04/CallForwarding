@@ -120,7 +120,7 @@ trait ReceivesCalls
 
         $objects = $members->map(function ($item) {
             $instance = new static($item);
-            $instance->afterForward(unserialize($item['afterCallForwarding'])->getClosure());
+            $instance->afterForward(unserialize($item['afterCallForwarding'] ?? '')->getClosure());
 
             return $instance;
         });
