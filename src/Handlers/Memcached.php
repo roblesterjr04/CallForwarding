@@ -23,7 +23,7 @@ class Memcached extends CallManager implements CallForwardingDriver
             $config['servers'],
             $config['persistent_id'],
             $config['options'],
-            $config['sasl']
+            $creds
         );
     }
     
