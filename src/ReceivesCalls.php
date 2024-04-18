@@ -140,7 +140,7 @@ trait ReceivesCalls
                 $params[] = $model->$key;
             }
             $closure = $model->afterCallForwarding;
-            $closure($model->toArray());
+            if ($closure) $closure($model->toArray());
 
             return '('.implode(',', $row).')';
         })->toArray());
