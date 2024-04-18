@@ -21,7 +21,7 @@ class Memcached extends CallManager implements CallForwardingDriver
         
         $this->connection = (new MemcachedConnector())->connect(
             $config['servers'],
-            $config['persistent_id'],
+            $config['persistent_id'] ?? 'cfmc',
             $config['options'],
             $creds
         );
