@@ -35,7 +35,7 @@ class Memcached extends CallManager implements CallForwardingDriver
         dump($subKey);
         dump($data);
         dump($key);
-        if ($this->connection->set("$key:$subKey", $data) === false) {
+        if ($this->connection->set("$subKey", $data) === false) {
             $this->memcachedError();
         };
         $members = $this->connection->getAllKeys();
