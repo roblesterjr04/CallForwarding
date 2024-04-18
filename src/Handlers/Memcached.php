@@ -22,8 +22,7 @@ class Memcached extends CallManager implements CallForwardingDriver
         $this->connection = (new MemcachedConnector())->connect(
             $config['servers'],
             'cf-store',
-            $config['options'],
-            $creds,
+            $config['options']
         );
     }
     
@@ -38,10 +37,8 @@ class Memcached extends CallManager implements CallForwardingDriver
     
     public function getAllItems($key, $purge = false): Collection
     {    
-        dump($this->connection);
         $members = $this->connection->getAllKeys();
            
-        dd($members);     
         if ($members === false) {
             $this->memcachedError();
         }    
