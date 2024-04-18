@@ -31,29 +31,20 @@ class Memcached extends CallManager implements CallForwardingDriver
     
     public function putItem($key, $data): void
     {
-        $subKey = md5($data);
-        
-        if ($this->connection->set("$key", 'test') === false) {
+        if ($this->connection->append("$key", "$data\n") === false) {
             $this->memcachedError();
         };
-        $this->connection->getDelayed([$key], true);
-        $members = $this->connection->fetchAll();
-           
-        if ($members === false) {
-            $this->memcachedError();
-        }  
-        dd($members);
     }
     
     public function getAllItems($key, $purge = false): Collection
     {    
-        $members = $this->connection->fetchAll();
+        $members = $this->connection->get($key);
            
         if ($members === false) {
             $this->memcachedError();
         }    
         
-        $data = collect($members)->filter(function($item) use ($key) {
+        $data = collect(explode("\n",$members))->filter(function($item) use ($key) {
             return Str::of($item)->contains("$key:");
         })->map(function($key) {
             $data = $this->connection->get($key);
