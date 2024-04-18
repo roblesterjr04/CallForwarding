@@ -34,7 +34,9 @@ class Memcached extends CallManager implements CallForwardingDriver
     public function putItem($key, $data): void
     {
         if ($this->connection->append("$key", "$data\n") === false) {
-            $this->memcachedError();
+            if ($this->connection->set("$key", "$data\n") === false) {
+                $this->memcachedError();
+            }
         };
     }
     
