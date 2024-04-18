@@ -48,7 +48,9 @@ class Memcached extends CallManager implements CallForwardingDriver
             $this->memcachedError();
         }    
         
-        $data = collect(explode("\n",$members));
+        $data = collect(explode("\n",$members))->map(function($data) {
+            return json_decode($data, true);
+        });
         
         return $data;
     }
