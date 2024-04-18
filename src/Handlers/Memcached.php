@@ -28,6 +28,10 @@ class Memcached extends CallManager implements CallForwardingDriver
             ],
             $creds
         );
+        
+        dd($config['options'] + [
+                MemcachedCore::OPT_CONNECT_TIMEOUT => 2000
+            ]);
     }
     
     public function putItem($key, $data): void
