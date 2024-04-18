@@ -56,7 +56,7 @@ Now by default, every minute, anything that has been queued this way will get pe
 
 ### Changing the driver
 
-The package is built in with 2 drivers for the queue. The default is `file`, but it also includes `redis`.
+The package is built in with 3 drivers for the queue. The default is `file`, but it also includes `redis` and `memcached`.
 
 Your choices out of the box are File or Redis. To use the Redis option, add this to your `.env` file:
 
