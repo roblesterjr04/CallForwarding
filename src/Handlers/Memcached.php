@@ -54,6 +54,8 @@ class Memcached extends CallManager implements CallForwardingDriver
             return json_decode($data, true);
         });
         
+        if ($purge) $this->connection->delete($key);
+        
         return $data;
     }
     
